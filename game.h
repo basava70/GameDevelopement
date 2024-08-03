@@ -25,12 +25,13 @@ private:
    * -- second, we update the game
    * -- third, we generate the output of the game
    */
-  void ProcessInput() {}
+  void ProcessInput();
   void UpdateGame() {}
-  void GenerateOutput() {}
+  void GenerateOutput();
 
   // Window crated by SDL
   SDL_Window *window_;
   // bool variable to check if the game is running
   bool is_running_;
+  SDL_Renderer *renderer_;
 };
