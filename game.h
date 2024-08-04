@@ -17,7 +17,8 @@ class Game {
 public:
   Game()
       : is_running_(true), BallPos_(WindowWidth_ / 2, WindowHeight_ / 2),
-        PaddlePos_(Thickness_, WindowHeight_ / 2) {}
+        PaddlePos_(Thickness_ * 3 / 2, WindowHeight_ / 2),
+        BallVel_(DifficultyLevel_ * -20, DifficultyLevel_ * 21) {}
 
   // initialize the game
   bool Initialize();
@@ -53,6 +54,7 @@ private:
 
   Vector2D PaddlePos_;
   Vector2D BallPos_;
+  Vector2D BallVel_;
 
   int PaddleDir_ = 0;
 };

@@ -9,6 +9,7 @@
 #include <SDL3/SDL_scancode.h>
 #include <SDL3/SDL_stdinc.h>
 #include <SDL3/SDL_timer.h>
+#include <cstdlib>
 
 bool Game::Initialize() {
   int sdlResult = SDL_Init(SDL_INIT_VIDEO);
@@ -86,6 +87,45 @@ void Game::UpdateGame() {
     if (PaddlePos_.y > WindowHeight_ - PaddleHeight_ / 2.0f - Thickness_)
       PaddlePos_.y = WindowHeight_ - PaddleHeight_ / 2.0f - Thickness_;
   }
+
+  // updating the ball
+  BallPos_.x += BallVel_.x * deltaTime;
+  BallPos_.y += BallVel_.y * deltaTime;
+
+  /**
+   * -- Collision detection
+   * -- For top wall, if BallPos_.y <= Thickness_, we have a hit in frame A
+   * -- Now, we change the direction of ball, BallVel_.y *= -1.
+   * -- However, in frame B, we might still be in collision zone, albeit
+   * -- in the correct direction, so we must add another condition
+   * -- to not get stuck in an infinite collision loop.
+   **/
+
+  // top wall collision
+  if (BallPos_.y <= Thickness_ * 3.0f / 2 && BallVel_.y < 0.0f)
+    BallVel_.y *= -1;
+
+  // right wall collision
+  if (BallPos_.x >= WindowWidth_ - Thickness_ * 3.0f / 2 && BallVel_.x > 0.0f)
+    BallVel_.x *= -1;
+
+  // bot wall collision
+  if (BallPos_.y >= WindowHeight_ - Thickness_ * 3.0f / 2 && BallVel_.y > 0.0f)
+    BallVel_.y *= -1;
+
+  // left wall collision
+  if (BallPos_.x <= Thickness_ * 3.0f / 2 && BallVel_.x < 0.0f)
+    BallVel_.x *= -1;
+
+  /**
+   * -- Collision with the paddle
+   * -- We will check if the abs diff in y values is <= PaddleHeight_/2
+   * -- and diff in x values is <= Thickness_
+   * -- and BallVel_.x < 0 (ball is going left toward paddle)
+   **/
+  if (std::abs(BallPos_.y - PaddlePos_.y) <= PaddleHeight_ / 2 &&
+      std::abs(BallPos_.x - PaddlePos_.x) <= Thickness_ && BallVel_.x < 0.0f)
+    BallVel_.x *= -1.0f;
 }
 
 void Game::GenerateOutput() {
@@ -114,8 +154,8 @@ void Game::GenerateOutput() {
    * -- Choosing green for paddle
    **/
   SDL_SetRenderDrawColor(Renderer_, 0, 255, 0, 255);
-  SDL_FRect paddle{PaddlePos_.x, PaddlePos_.y - PaddleHeight_ / 2, Thickness_,
-                   PaddleHeight_};
+  SDL_FRect paddle{PaddlePos_.x - Thickness_ / 2,
+                   PaddlePos_.y - PaddleHeight_ / 2, Thickness_, PaddleHeight_};
   SDL_RenderFillRect(Renderer_, &paddle);
 
   /**
