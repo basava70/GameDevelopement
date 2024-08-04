@@ -9,7 +9,6 @@
 #include <SDL3/SDL_scancode.h>
 #include <SDL3/SDL_stdinc.h>
 #include <SDL3/SDL_timer.h>
-#include <iostream>
 
 bool Game::Initialize() {
   int sdlResult = SDL_Init(SDL_INIT_VIDEO);
