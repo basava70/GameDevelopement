@@ -57,4 +57,5 @@ private:
   Vector2D BallVel_;
 
   int PaddleDir_ = 0;
+  int Score_ = 0;
 };

@@ -124,8 +124,9 @@ void Game::UpdateGame() {
    * -- and BallVel_.x < 0 (ball is going left toward paddle)
    **/
   if (std::abs(BallPos_.y - PaddlePos_.y) <= PaddleHeight_ / 2 &&
-      std::abs(BallPos_.x - PaddlePos_.x) <= Thickness_ && BallVel_.x < 0.0f)
+      std::abs(BallPos_.x - PaddlePos_.x) <= Thickness_ && BallVel_.x < 0.0f) {
     BallVel_.x *= -1.0f;
+  }
 }
 
 void Game::GenerateOutput() {
