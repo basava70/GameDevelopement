@@ -4,17 +4,20 @@
 #include <SDL3/SDL_error.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_log.h>
+#include <SDL3/SDL_stdinc.h>
 #include <SDL3/SDL_video.h>
 
 struct Vector2D {
-  int x;
-  int y;
-  Vector2D(int x_val, int y_val) : x(x_val), y(y_val) {}
+  float x;
+  float y;
+  Vector2D(float x_val, float y_val) : x(x_val), y(y_val) {}
 };
 
 class Game {
 public:
-  Game() : is_running_(true), BallPos_(512, 357), PaddlePos_(0, 357) {}
+  Game()
+      : is_running_(true), BallPos_(WindowWidth_ / 2, WindowHeight_ / 2),
+        PaddlePos_(Thickness_, WindowHeight_ / 2) {}
 
   // initialize the game
   bool Initialize();
@@ -33,7 +36,7 @@ private:
    * -- third, we generate the output of the game
    */
   void ProcessInput();
-  void UpdateGame() {}
+  void UpdateGame();
   void GenerateOutput();
 
   // Window crated by SDL
@@ -42,6 +45,14 @@ private:
   bool is_running_;
   SDL_Renderer *Renderer_;
 
+  const float WindowHeight_ = 768, WindowWidth_ = 1024, Thickness_ = 15;
+  float DifficultyLevel_ = 10;
+  const float PaddleHeight_ = DifficultyLevel_ * Thickness_;
+
+  Uint64 TicksCount_ = 0;
+
   Vector2D PaddlePos_;
   Vector2D BallPos_;
+
+  int PaddleDir_ = 0;
 };

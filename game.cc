@@ -8,6 +8,8 @@
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_scancode.h>
 #include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_timer.h>
+#include <iostream>
 
 bool Game::Initialize() {
   int sdlResult = SDL_Init(SDL_INIT_VIDEO);
@@ -15,8 +17,8 @@ bool Game::Initialize() {
     SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
     return false;
   }
-  Window_ =
-      SDL_CreateWindow("Game Programming in C++, Chapter 1", 1024, 768, 0);
+  Window_ = SDL_CreateWindow("Game Programming in C++, Chapter 1", WindowWidth_,
+                             WindowHeight_, 0);
   if (!Window_) {
     SDL_Log("Failed to create window %s", SDL_GetError());
     return false;
@@ -28,44 +30,6 @@ bool Game::Initialize() {
     return false;
   }
   return true;
-}
-
-void Game::GenerateOutput() {
-  // set the entire screen to blue and opacity to full 100%
-  SDL_SetRenderDrawColor(Renderer_, 0, 0, 255, 255);
-  // clear the back buffer
-  SDL_RenderClear(Renderer_);
-
-  // choosing black as the color for paddle and ball
-  SDL_SetRenderDrawColor(Renderer_, 255, 255, 255, 255);
-
-  // Creating walls
-  const int thickness = 15;
-  const SDL_FRect wall_top{0, 0, 1024, thickness};
-  const SDL_FRect wall_bot{0, 768 - thickness, 1024, thickness};
-  const SDL_FRect wall_left{0, 0, thickness, 768};
-  const SDL_FRect wall_right{1024 - thickness, 0, thickness, 768};
-  SDL_RenderFillRect(Renderer_, &wall_top);
-  SDL_RenderFillRect(Renderer_, &wall_bot);
-  SDL_RenderFillRect(Renderer_, &wall_left);
-  SDL_RenderFillRect(Renderer_, &wall_right);
-  // skipping drawing the game for now
-  // Finally, swapping the front and back buffers
-  SDL_RenderPresent(Renderer_);
-}
-
-void Game::ShutDown() {
-  SDL_DestroyRenderer(Renderer_);
-  SDL_DestroyWindow(Window_);
-  SDL_Quit();
-}
-
-void Game::RunLoop() {
-  while (is_running_) {
-    ProcessInput();
-    UpdateGame();
-    GenerateOutput();
-  }
 }
 
 void Game::ProcessInput() {
@@ -82,4 +46,102 @@ void Game::ProcessInput() {
 
   if (state[SDL_SCANCODE_ESCAPE])
     is_running_ = false;
+
+  PaddleDir_ = 0;
+
+  // move top if W is pressed, negative y direction
+  if (state[SDL_SCANCODE_W])
+    PaddleDir_ += -1;
+
+  // move bottom if S is pressed, positive y direction
+  if (state[SDL_SCANCODE_S])
+    PaddleDir_ += 1;
+}
+
+void Game::UpdateGame() {
+  // Wait until 8.33ms (120 FPS) has elapsed since last frame
+  while (!(SDL_GetTicks() - TicksCount_ >= 8)) {
+    ;
+  }
+
+  /**
+   * -- Delta time is the difference in ticks from last frame
+   * -- converted to seconds
+   **/
+  Uint64 currentTicks = SDL_GetTicks();
+  float deltaTime = (currentTicks - TicksCount_) / 1000.0f;
+
+  // Clamp maximum delta time to 0.05
+  if (deltaTime > 0.05f)
+    deltaTime = 0.05f;
+  TicksCount_ = SDL_GetTicks();
+
+  // move the paddle accordingly
+  // We are moving 300.0f pixels per second
+  if (PaddleDir_ != 0) {
+    PaddlePos_.y += PaddleDir_ * 300.0f * deltaTime;
+
+    if (PaddlePos_.y < PaddleHeight_ / 2.0f + Thickness_)
+      PaddlePos_.y = PaddleHeight_ / 2.0f + Thickness_;
+
+    if (PaddlePos_.y > WindowHeight_ - PaddleHeight_ / 2.0f - Thickness_)
+      PaddlePos_.y = WindowHeight_ - PaddleHeight_ / 2.0f - Thickness_;
+  }
+}
+
+void Game::GenerateOutput() {
+  // set the entire screen to black and opacity to full 100%
+  SDL_SetRenderDrawColor(Renderer_, 0, 0, 0, 0);
+  // clear the back buffer
+  SDL_RenderClear(Renderer_);
+
+  // choosing black as the color for paddle and ball
+  SDL_SetRenderDrawColor(Renderer_, 255, 255, 255, 255);
+
+  // Creating walls
+  const SDL_FRect wall_top{0, 0, WindowWidth_, Thickness_};
+  const SDL_FRect wall_bot{0, WindowHeight_ - Thickness_, WindowWidth_,
+                           Thickness_};
+  const SDL_FRect wall_left{0, 0, Thickness_, WindowHeight_};
+  const SDL_FRect wall_right{WindowWidth_ - Thickness_, 0, Thickness_,
+                             WindowHeight_};
+  SDL_RenderFillRect(Renderer_, &wall_top);
+  SDL_RenderFillRect(Renderer_, &wall_bot);
+  SDL_RenderFillRect(Renderer_, &wall_left);
+  SDL_RenderFillRect(Renderer_, &wall_right);
+
+  /**
+   * -- Drawing the paddle
+   * -- Choosing green for paddle
+   **/
+  SDL_SetRenderDrawColor(Renderer_, 0, 255, 0, 255);
+  SDL_FRect paddle{PaddlePos_.x, PaddlePos_.y - PaddleHeight_ / 2, Thickness_,
+                   PaddleHeight_};
+  SDL_RenderFillRect(Renderer_, &paddle);
+
+  /**
+   * -- Drawing ball
+   * -- choosing red for ball
+   **/
+  SDL_SetRenderDrawColor(Renderer_, 255, 0, 0, 255);
+  SDL_FRect ball{BallPos_.x - Thickness_ / 2, BallPos_.y - Thickness_ / 2,
+                 Thickness_, Thickness_};
+  SDL_RenderFillRect(Renderer_, &ball);
+
+  // Finally, swapping the front and back buffers
+  SDL_RenderPresent(Renderer_);
+}
+
+void Game::ShutDown() {
+  SDL_DestroyRenderer(Renderer_);
+  SDL_DestroyWindow(Window_);
+  SDL_Quit();
+}
+
+void Game::RunLoop() {
+  while (is_running_) {
+    ProcessInput();
+    UpdateGame();
+    GenerateOutput();
+  }
 }
