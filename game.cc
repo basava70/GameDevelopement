@@ -1,4 +1,5 @@
 #include "game.h"
+#include "SDL3/SDL_rect.h"
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_keyboard.h>
@@ -14,15 +15,15 @@ bool Game::Initialize() {
     SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
     return false;
   }
-  window_ =
+  Window_ =
       SDL_CreateWindow("Game Programming in C++, Chapter 1", 1024, 768, 0);
-  if (!window_) {
+  if (!Window_) {
     SDL_Log("Failed to create window %s", SDL_GetError());
     return false;
   }
 
-  renderer_ = SDL_CreateRenderer(window_, NULL);
-  if (!renderer_) {
+  Renderer_ = SDL_CreateRenderer(Window_, NULL);
+  if (!Renderer_) {
     SDL_Log("Failed to create renderer %s", SDL_GetError());
     return false;
   }
@@ -31,16 +32,31 @@ bool Game::Initialize() {
 
 void Game::GenerateOutput() {
   // set the entire screen to blue and opacity to full 100%
-  SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
+  SDL_SetRenderDrawColor(Renderer_, 0, 0, 255, 255);
   // clear the back buffer
-  SDL_RenderClear(renderer_);
+  SDL_RenderClear(Renderer_);
+
+  // choosing black as the color for paddle and ball
+  SDL_SetRenderDrawColor(Renderer_, 255, 255, 255, 255);
+
+  // Creating walls
+  const int thickness = 15;
+  const SDL_FRect wall_top{0, 0, 1024, thickness};
+  const SDL_FRect wall_bot{0, 768 - thickness, 1024, thickness};
+  const SDL_FRect wall_left{0, 0, thickness, 768};
+  const SDL_FRect wall_right{1024 - thickness, 0, thickness, 768};
+  SDL_RenderFillRect(Renderer_, &wall_top);
+  SDL_RenderFillRect(Renderer_, &wall_bot);
+  SDL_RenderFillRect(Renderer_, &wall_left);
+  SDL_RenderFillRect(Renderer_, &wall_right);
   // skipping drawing the game for now
   // Finally, swapping the front and back buffers
-  SDL_RenderPresent(renderer_);
+  SDL_RenderPresent(Renderer_);
 }
 
 void Game::ShutDown() {
-  SDL_DestroyWindow(window_);
+  SDL_DestroyRenderer(Renderer_);
+  SDL_DestroyWindow(Window_);
   SDL_Quit();
 }
 
