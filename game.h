@@ -16,7 +16,7 @@ struct Vector2D {
 class Game {
 public:
   Game()
-      : is_running_(true), BallPos_(WindowWidth_ / 2, WindowHeight_ / 2),
+      : IsRunning_(true), BallPos_(WindowWidth_ / 2, WindowHeight_ / 2),
         PaddlePos_(Thickness_ * 3 / 2, WindowHeight_ / 2),
         BallVel_(DifficultyLevel_ * -20, DifficultyLevel_ * 21) {}
 
@@ -43,7 +43,7 @@ private:
   // Window crated by SDL
   SDL_Window *Window_;
   // bool variable to check if the game is running
-  bool is_running_;
+  bool IsRunning_;
   SDL_Renderer *Renderer_;
 
   const float WindowHeight_ = 768, WindowWidth_ = 1024, Thickness_ = 15;

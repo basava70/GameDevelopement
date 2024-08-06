@@ -37,7 +37,7 @@ void Game::ProcessInput() {
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
     case SDL_EVENT_QUIT:
-      is_running_ = false;
+      IsRunning_ = false;
       break;
     }
   }
@@ -45,7 +45,7 @@ void Game::ProcessInput() {
   const Uint8 *state = SDL_GetKeyboardState(NULL);
 
   if (state[SDL_SCANCODE_ESCAPE])
-    is_running_ = false;
+    IsRunning_ = false;
 
   PaddleDir_ = 0;
 
@@ -115,7 +115,7 @@ void Game::UpdateGame() {
 
   // left wall collision
   if (BallPos_.x <= Thickness_ * 3.0f / 2 && BallVel_.x < 0.0f)
-    BallVel_.x *= -1;
+    IsRunning_ = false;
 
   /**
    * -- Collision with the paddle
@@ -179,7 +179,7 @@ void Game::ShutDown() {
 }
 
 void Game::RunLoop() {
-  while (is_running_) {
+  while (IsRunning_) {
     ProcessInput();
     UpdateGame();
     GenerateOutput();
