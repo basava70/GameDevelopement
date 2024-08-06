@@ -47,7 +47,7 @@ private:
   SDL_Renderer *Renderer_;
 
   const float WindowHeight_ = 768, WindowWidth_ = 1024, Thickness_ = 15;
-  float DifficultyLevel_ = 10;
+  int DifficultyLevel_ = 10;
   const float PaddleHeight_ = DifficultyLevel_ * Thickness_;
 
   Uint64 TicksCount_ = 0;

@@ -79,7 +79,7 @@ void Game::UpdateGame() {
   // move the paddle accordingly
   // We are moving 300.0f pixels per second
   if (PaddleDir_ != 0) {
-    PaddlePos_.y += PaddleDir_ * 300.0f * deltaTime;
+    PaddlePos_.y += PaddleDir_ * 600.0f * deltaTime;
 
     if (PaddlePos_.y < PaddleHeight_ / 2.0f + Thickness_)
       PaddlePos_.y = PaddleHeight_ / 2.0f + Thickness_;
@@ -113,7 +113,7 @@ void Game::UpdateGame() {
   if (BallPos_.y >= WindowHeight_ - Thickness_ * 3.0f / 2 && BallVel_.y > 0.0f)
     BallVel_.y *= -1;
 
-  // left wall collision
+  // left wall collision **** game ends *****
   if (BallPos_.x <= Thickness_ * 3.0f / 2 && BallVel_.x < 0.0f)
     IsRunning_ = false;
 
@@ -126,6 +126,9 @@ void Game::UpdateGame() {
   if (std::abs(BallPos_.y - PaddlePos_.y) <= PaddleHeight_ / 2 &&
       std::abs(BallPos_.x - PaddlePos_.x) <= Thickness_ && BallVel_.x < 0.0f) {
     BallVel_.x *= -1.0f;
+    Score_++;
+    DifficultyLevel_ += Score_;
+    BallVel_.x += DifficultyLevel_;
   }
 }
 
