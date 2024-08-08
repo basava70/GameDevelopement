@@ -17,8 +17,7 @@ bool Game::Initialize() {
     SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
     return false;
   }
-  Window_ = SDL_CreateWindow("Game Programming in C++, Chapter 1", WindowWidth_,
-                             WindowHeight_, 0);
+  Window_ = SDL_CreateWindow("PongBall", WindowWidth_, WindowHeight_, 0);
   if (!Window_) {
     SDL_Log("Failed to create window %s", SDL_GetError());
     return false;
