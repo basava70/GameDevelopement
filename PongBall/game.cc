@@ -5,12 +5,15 @@
 #include <SDL3/SDL_keyboard.h>
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_oldnames.h>
+#include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_scancode.h>
 #include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_surface.h>
 #include <SDL3/SDL_timer.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <cstdlib>
+#include <string>
 
 bool Game::Initialize() {
   int sdlResult = SDL_Init(SDL_INIT_VIDEO);
@@ -18,6 +21,19 @@ bool Game::Initialize() {
     SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
     return false;
   }
+
+  if (TTF_Init() != -1) {
+    SDL_Log("Failed to initialize SDL_ttf: %s", SDL_GetError());
+    return false;
+  }
+
+  // loading the font
+  Font_ = TTF_OpenFont("font/FiraCodeNerdFont-Light.ttf", 14);
+  if (!Font_) {
+    SDL_Log("Failed to load font: %s", SDL_GetError());
+    return false;
+  }
+
   Window_ = SDL_CreateWindow("PongBall", WindowWidth_, WindowHeight_, 0);
   if (!Window_) {
     SDL_Log("Failed to create window %s", SDL_GetError());
@@ -171,11 +187,47 @@ void Game::GenerateOutput() {
                  Thickness_, Thickness_};
   SDL_RenderFillRect(Renderer_, &ball);
 
+  // Drawing the score
+  std::string scoreText = "Score:" + std::to_string(Score_);
+  // choosing white color for text
+  SDL_Color textColor = {255, 255, 255, 255};
+
+  // Create surface and texture for Score:
+  SDL_Surface *textSurface =
+      TTF_RenderText_Solid(Font_, scoreText.c_str(), textColor);
+  SDL_Texture *textTexture =
+      SDL_CreateTextureFromSurface(Renderer_, textSurface);
+
+  // Get the width and height of the text
+  int textWidth = textSurface->w;
+  int textHeight = textSurface->h;
+
+  // Free the surface after creating the texture
+  SDL_DestroySurface(textSurface);
+
+  // Define the destination rectangle for the score
+  SDL_FRect dstRect;
+  // 10 pixels from the right edge
+  dstRect.x = WindowWidth_ - textWidth - 10;
+  // 10 pixels from the top edge
+  dstRect.y = 10;
+
+  dstRect.w = textWidth;
+  dstRect.h = textHeight;
+
+  // Render the score texture
+  SDL_RenderFillRect(Renderer_, &dstRect);
+
+  // Destroy the texture
+  SDL_DestroyTexture(textTexture);
+
   // Finally, swapping the front and back buffers
   SDL_RenderPresent(Renderer_);
 }
 
 void Game::ShutDown() {
+  TTF_CloseFont(Font_);
+  TTF_Quit();
   SDL_DestroyRenderer(Renderer_);
   SDL_DestroyWindow(Window_);
   SDL_Quit();

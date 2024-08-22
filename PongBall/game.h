@@ -6,6 +6,7 @@
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_stdinc.h>
 #include <SDL3/SDL_video.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 struct Vector2D {
   float x;
@@ -45,6 +46,9 @@ private:
   // bool variable to check if the game is running
   bool IsRunning_;
   SDL_Renderer *Renderer_;
+
+  // font needed for score
+  TTF_Font *Font_;
 
   const float WindowHeight_ = 768, WindowWidth_ = 1024, Thickness_ = 15;
   int DifficultyLevel_ = 10;
