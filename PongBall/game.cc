@@ -22,15 +22,18 @@ bool Game::Initialize() {
     return false;
   }
 
-  if (TTF_Init() != -1) {
-    SDL_Log("Failed to initialize SDL_ttf: %s", SDL_GetError());
+  if (TTF_Init() != 0) {
+    SDL_Log("Failed to initialize SDL_ttf: %s", TTF_GetError());
     return false;
   }
 
   // loading the font
-  Font_ = TTF_OpenFont("font/FiraCodeNerdFont-Light.ttf", 14);
+  Font_ = TTF_OpenFont(
+      "/Users/seshu/Desktop/Seshadri/GameDevelopement/PongBall/font/"
+      "FiraCodeNerdFont-Light.ttf",
+      14);
   if (!Font_) {
-    SDL_Log("Failed to load font: %s", SDL_GetError());
+    SDL_Log("Failed to load font: %s", TTF_GetError());
     return false;
   }
 
