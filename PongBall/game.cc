@@ -14,7 +14,7 @@
 
 bool Game::Initialize() {
   int sdlResult = SDL_Init(SDL_INIT_VIDEO);
-  if (sdlResult != 0) {
+  if (sdlResult != SDL_TRUE) {
     SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
     return false;
   }
